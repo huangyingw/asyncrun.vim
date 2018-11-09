@@ -250,6 +250,7 @@ endif
 let s:async_nvim = has('nvim')? 1 : 0
 let s:async_info = { 'text':"", 'post':'', 'postsave':'' }
 let s:async_output = {}
+let s:async_jobs = []
 let s:async_head = 0
 let s:async_tail = 0
 let s:async_code = 0
@@ -656,7 +657,7 @@ function! s:AsyncRun_Job_Start(cmd)
             let l:options['in_top'] = s:async_info.range_top
             let l:options['in_bot'] = s:async_info.range_bot
         endif
-        add(s:async_jobs, job_start(l:args, l:options))
+        call add(s:async_jobs, job_start(l:args, l:options))
     else
         let l:callbacks = {'shell': 'AsyncRun'}
         let l:callbacks['on_stdout'] = function('s:AsyncRun_Job_NeoVim')
@@ -664,7 +665,7 @@ function! s:AsyncRun_Job_Start(cmd)
         let l:callbacks['on_exit'] = function('s:AsyncRun_Job_NeoVim')
         let s:neovim_stdout = ''
         let s:neovim_stderr = ''
-        add(s:async_jobs, jobstart(l:args, l:callbacks))
+        call add(s:async_jobs, jobstart(l:args, l:callbacks))
     endif
     return 0
 endfunc
