@@ -586,10 +586,6 @@ function! s:AsyncRun_Job_Start(cmd)
 	elseif type(a:cmd) == 3
 		if a:cmd == [] | let l:empty = 1 | endif
 	endif
-	if s:async_state != 0 || l:running != 0
-		call s:ErrorMsg("background job is still running")
-		return -2
-	endif
 	if l:empty != 0
 		call s:ErrorMsg("empty arguments")
 		return -3
