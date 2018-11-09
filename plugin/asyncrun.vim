@@ -666,33 +666,6 @@ function! s:AsyncRun_Job_Start(cmd)
         let s:neovim_stderr = ''
         add(s:async_jobs, jobstart(l:args, l:callbacks))
     endif
-    if l:success != 0
-        let s:async_state = or(s:async_state, 1)
-        let g:asyncrun_status = "running"
-        let s:async_start = localtime()
-        let l:arguments = "[".l:name."]"
-        let l:title = ':AsyncRun '.l:name
-        if s:async_nvim == 0
-            if v:version >= 800 || has('patch-7.4.2210')
-                call setqflist([], ' ', {'title':l:title})
-            else
-                call setqflist([], ' ')
-            endif
-        else
-            call setqflist([], ' ', l:title)
-        endif
-        call setqflist([{'text':l:arguments}], 'a')
-        let l:name = 'g:AsyncRun_Job_OnTimer'
-        let s:async_timer = timer_start(100, l:name, {'repeat':-1})
-        call s:AsyncRun_Job_AutoCmd(0, s:async_info.auto)
-        call s:AutoCmd('Start')
-        redrawstatus!
-    else
-        unlet s:async_jobs
-        call s:ErrorMsg("Background job start failed '".a:cmd."'")
-        redrawstatus!
-        return -5
-    endif
     return 0
 endfunc
 
