@@ -9,6 +9,8 @@
     remote = origin
     branch = master
 [remote "origin"]
-	url = git@github.com:skywind3000/asyncrun.vim.git
-	fetch = +refs/heads/*:refs/remotes/origin/*
-
+    url = git@github.com:skywind3000/asyncrun.vim.git
+    fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "dev"]
+    remote = github
+    merge = refs/heads/dev
