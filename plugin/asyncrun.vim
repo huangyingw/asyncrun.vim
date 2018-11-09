@@ -416,8 +416,8 @@ function! g:AsyncRun_Job_OnTimer(id)
 		return
 	endif
 	if s:async_nvim == 0
-		if exists('s:async_job')
-			call job_status(s:async_job)
+		if exists('s:async_jobs')
+			call job_status(s:async_jobs)
 		endif
 	endif
 	call s:AsyncRun_Job_Update(limit)
@@ -430,7 +430,7 @@ endfunc
 
 " invoked on "callback" when job output
 function! s:AsyncRun_Job_OnCallback(channel, text)
-	if !exists("s:async_job")
+	if !exists("s:async_jobs")
 		return
 	endif
 	if type(a:text) != 1
@@ -450,8 +450,8 @@ function! s:AsyncRun_Job_OnFinish()
 	if s:async_state == 0
 		return -1
 	endif
-	if exists('s:async_job')
-		unlet s:async_job
+	if exists('s:async_jobs')
+		unlet s:async_jobs
 	endif
 	if exists('s:async_timer')
 		call timer_stop(s:async_timer)
@@ -508,8 +508,8 @@ function! s:AsyncRun_Job_OnClose(channel)
 		endif
 	endwhile
 	let s:async_debug = 0
-	if exists('s:async_job')
-		call job_status(s:async_job)
+	if exists('s:async_jobs')
+		call job_status(s:async_jobs)
 	endif
 	let s:async_state = or(s:async_state, 4)
 endfunc
@@ -570,13 +570,13 @@ function! s:AsyncRun_Job_Start(cmd)
 		call s:NotSupport()
 		return -1
 	endif
-	if exists('s:async_job')
+	if exists('s:async_jobs')
 		if !has('nvim')
-			if job_status(s:async_job) == 'run'
+			if job_status(s:async_jobs) == 'run'
 				let l:running = 1
 			endif
 		else
-			if s:async_job > 0
+			if s:async_jobs > 0
 				let l:running = 1
 			endif
 		endif
@@ -668,8 +668,8 @@ function! s:AsyncRun_Job_Start(cmd)
 			let l:options['in_top'] = s:async_info.range_top
 			let l:options['in_bot'] = s:async_info.range_bot
 		endif
-		let s:async_job = job_start(l:args, l:options)
-		let l:success = (job_status(s:async_job) != 'fail')? 1 : 0
+		let s:async_jobs = job_start(l:args, l:options)
+		let l:success = (job_status(s:async_jobs) != 'fail')? 1 : 0
 	else
 		let l:callbacks = {'shell': 'AsyncRun'}
 		let l:callbacks['on_stdout'] = function('s:AsyncRun_Job_NeoVim')
@@ -677,23 +677,23 @@ function! s:AsyncRun_Job_Start(cmd)
 		let l:callbacks['on_exit'] = function('s:AsyncRun_Job_NeoVim')
 		let s:neovim_stdout = ''
 		let s:neovim_stderr = ''
-		let s:async_job = jobstart(l:args, l:callbacks)
-		let l:success = (s:async_job > 0)? 1 : 0
+		let s:async_jobs = jobstart(l:args, l:callbacks)
+		let l:success = (s:async_jobs > 0)? 1 : 0
 		if l:success != 0
 			if s:async_info.range > 0
 				let l:top = s:async_info.range_top
 				let l:bot = s:async_info.range_bot
 				let l:lines = getline(l:top, l:bot)
 				if exists('*chansend')
-					call chansend(s:async_job, l:lines)
+					call chansend(s:async_jobs, l:lines)
 				elseif exists('*jobsend')
-					call jobsend(s:async_job, l:lines)
+					call jobsend(s:async_jobs, l:lines)
 				endif
 			endif
 			if exists('*chanclose')
-				call chanclose(s:async_job, 'stdin')
+				call chanclose(s:async_jobs, 'stdin')
 			elseif exists('*jobclose')
-				call jobclose(s:async_job, 'stdin')
+				call jobclose(s:async_jobs, 'stdin')
 			endif
 		endif
 	endif
@@ -719,7 +719,7 @@ function! s:AsyncRun_Job_Start(cmd)
 		call s:AutoCmd('Start')
 		redrawstatus!
 	else
-		unlet s:async_job
+		unlet s:async_jobs
 		call s:ErrorMsg("Background job start failed '".a:cmd."'")
 		redrawstatus!
 		return -5
@@ -739,10 +739,10 @@ function! s:AsyncRun_Job_Stop(how)
 		let s:async_head -= 1
 		unlet s:async_output[s:async_head]
 	endwhile
-	if exists('s:async_job')
+	if exists('s:async_jobs')
 		if s:async_nvim == 0
-			if job_status(s:async_job) == 'run'
-				if job_stop(s:async_job, l:how)
+			if job_status(s:async_jobs) == 'run'
+				if job_stop(s:async_jobs, l:how)
 					return 0
 				else
 					return -2
@@ -751,8 +751,8 @@ function! s:AsyncRun_Job_Stop(how)
 				return -3
 			endif
 		else
-			if s:async_job > 0
-				silent! call jobstop(s:async_job)
+			if s:async_jobs > 0
+				silent! call jobstop(s:async_jobs)
 			endif
 		endif
 	else
@@ -764,9 +764,9 @@ endfunc
 
 " get job status
 function! s:AsyncRun_Job_Status()
-	if exists('s:async_job')
+	if exists('s:async_jobs')
 		if s:async_nvim == 0
-			return job_status(s:async_job)
+			return job_status(s:async_jobs)
 		else
 			return 'run'
 		endif
