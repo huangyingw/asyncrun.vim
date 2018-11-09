@@ -670,40 +670,36 @@ function! s:AsyncRun_Job_Start(cmd)
     return 0
 endfunc
 
-
 " stop background job
 function! s:AsyncRun_Job_Stop(how)
     let l:how = (a:how != '')? a:how : 'term'
+
     if s:asyncrun_support == 0
         call s:NotSupport()
         return -1
     endif
+
     while s:async_head > s:async_tail
         let s:async_head -= 1
         unlet s:async_output[s:async_head]
     endwhile
+
     if exists('s:async_jobs')
         if s:async_nvim == 0
-            if job_status(s:async_jobs) == 'run'
-                if job_stop(s:async_jobs, l:how)
-                    return 0
-                else
-                    return -2
-                endif
-            else
-                return -3
-            endif
+            for async_job in s:async_jobs
+                job_stop(async_job, l:how)
+            endfor
         else
-            if s:async_jobs > 0
-                silent! call jobstop(s:async_jobs)
-            endif
+            for async_job in s:async_jobs
+                silent! call jobstop(async_job)
+            endfor
         endif
     else
         return -4
     endif
+
     return 0
 endfunc
-
 
 " get job status
 function! s:AsyncRun_Job_Status()
