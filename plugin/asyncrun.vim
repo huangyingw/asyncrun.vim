@@ -564,22 +564,10 @@ endfunc
 
 " start background build
 function! s:AsyncRun_Job_Start(cmd)
-	let l:running = 0
 	let l:empty = 0
 	if s:asyncrun_support == 0
 		call s:NotSupport()
 		return -1
-	endif
-	if exists('s:async_jobs')
-		if !has('nvim')
-			if job_status(s:async_jobs) == 'run'
-				let l:running = 1
-			endif
-		else
-			if s:async_jobs > 0
-				let l:running = 1
-			endif
-		endif
 	endif
 	if type(a:cmd) == 1
 		if a:cmd == '' | let l:empty = 1 | endif
@@ -668,7 +656,7 @@ function! s:AsyncRun_Job_Start(cmd)
 			let l:options['in_top'] = s:async_info.range_top
 			let l:options['in_bot'] = s:async_info.range_bot
 		endif
-		let s:async_jobs = job_start(l:args, l:options)
+        add(s:async_jobs, job_start(l:args, l:options))
 		let l:success = (job_status(s:async_jobs) != 'fail')? 1 : 0
 	else
 		let l:callbacks = {'shell': 'AsyncRun'}
@@ -677,7 +665,7 @@ function! s:AsyncRun_Job_Start(cmd)
 		let l:callbacks['on_exit'] = function('s:AsyncRun_Job_NeoVim')
 		let s:neovim_stdout = ''
 		let s:neovim_stderr = ''
-		let s:async_jobs = jobstart(l:args, l:callbacks)
+        add(s:async_jobs, jobstart(l:args, l:callbacks))
 		let l:success = (s:async_jobs > 0)? 1 : 0
 		if l:success != 0
 			if s:async_info.range > 0
