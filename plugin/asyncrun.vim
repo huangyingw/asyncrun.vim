@@ -657,7 +657,6 @@ function! s:AsyncRun_Job_Start(cmd)
             let l:options['in_bot'] = s:async_info.range_bot
         endif
         add(s:async_jobs, job_start(l:args, l:options))
-        let l:success = (job_status(s:async_jobs) != 'fail')? 1 : 0
     else
         let l:callbacks = {'shell': 'AsyncRun'}
         let l:callbacks['on_stdout'] = function('s:AsyncRun_Job_NeoVim')
@@ -666,24 +665,6 @@ function! s:AsyncRun_Job_Start(cmd)
         let s:neovim_stdout = ''
         let s:neovim_stderr = ''
         add(s:async_jobs, jobstart(l:args, l:callbacks))
-        let l:success = (s:async_jobs > 0)? 1 : 0
-        if l:success != 0
-            if s:async_info.range > 0
-                let l:top = s:async_info.range_top
-                let l:bot = s:async_info.range_bot
-                let l:lines = getline(l:top, l:bot)
-                if exists('*chansend')
-                    call chansend(s:async_jobs, l:lines)
-                elseif exists('*jobsend')
-                    call jobsend(s:async_jobs, l:lines)
-                endif
-            endif
-            if exists('*chanclose')
-                call chanclose(s:async_jobs, 'stdin')
-            elseif exists('*jobclose')
-                call jobclose(s:async_jobs, 'stdin')
-            endif
-        endif
     endif
     if l:success != 0
         let s:async_state = or(s:async_state, 1)
