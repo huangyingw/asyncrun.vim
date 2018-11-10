@@ -1,16 +1,13 @@
 [commit]
     message = n
-[remote "github"]
-    url = git@github.com:huangyingw/asyncrun.vim.git
-    fetch = +refs/heads/*:refs/remotes/github/*
-[push]
-    remote = github
-[gsync]
-    remote = origin
-    branch = master
-[remote "origin"]
+[remote "skywind3000"]
     url = git@github.com:skywind3000/asyncrun.vim.git
-    fetch = +refs/heads/*:refs/remotes/origin/*
+    fetch = +refs/heads/*:refs/remotes/skywind3000/*
+[push]
+    remote = origin
+[gsync]
+    remote = skywind3000
+    branch = master
 [branch "dev"]
-    remote = github
+    remote = origin
     merge = refs/heads/dev
