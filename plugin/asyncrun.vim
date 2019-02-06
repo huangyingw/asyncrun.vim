@@ -1106,7 +1106,7 @@ endfunc
 "----------------------------------------------------------------------
 function! asyncrun#run(bang, opts, args, ...)
     let l:macros = {}
-    let l:macros['VIM_FILEPATH'] = expand("%:p")
+    let l:macros['VIM_FILEPATH'] = GetCurrentFileName()
     let l:macros['VIM_FILENAME'] = expand("%:t")
     let l:macros['VIM_FILEDIR'] = expand("%:p:h")
     let l:macros['VIM_FILENOEXT'] = expand("%:t:r")
@@ -1308,7 +1308,7 @@ endfunc
 "----------------------------------------------------------------------
 function! s:execute(mode)
     if a:mode == 0      " Execute current filename
-        let l:fname = shellescape(expand("%:p"))
+        let l:fname = shellescape(GetCurrentFileName())
         if (has('gui_running') || has('nvim')) && (s:asyncrun_windows != 0)
             if !has('nvim')
                 silent exec '!start cmd /C '. l:fname .' & pause'
